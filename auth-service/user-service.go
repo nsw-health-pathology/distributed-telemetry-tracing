@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -12,11 +14,13 @@ import (
 // to be considered compatible with communicating with the User Service
 type IUserService interface {
 	getUser(username string) (*User, *IError)
+	makeTokenForUser(user *User) string
 }
 
 // UserService is a concrete implementation of the IUserService
 type UserService struct {
 	userServiceBaseURL string
+	jwtSigningKey      string
 }
 
 // Because the function signature matches the interface defined for IUserService,
@@ -48,7 +52,25 @@ func (u UserService) getUser(userName string) (*User, *IError) {
 	mapstructure.Decode(httpResponseBody, &e)
 	fmt.Println("Error Object", e)
 	return nil, &e
+}
+func (u UserService) makeTokenForUser(user *User) string {
+	// Create a new token object, specifying signing method and the claims
+	// you would like it to contain.
+	claimMap := jwt.MapClaims{
+		"upn": user.UserName,
+		"nbf": time.Now().Add(time.Second * -5).Unix(),
+		"exp": time.Now().Add(time.Minute * 15).Unix(),
+	}
 
+	fmt.Println(claimMap)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claimMap)
+	tokenString, err := token.SignedString([]byte(u.jwtSigningKey))
+
+	if err != nil {
+		fmt.Println("Error making token", err)
+	}
+	return tokenString
 }
 
 func userServiceGetUser(url string, queryParams map[string]string) (*IHttpResponse, error) {

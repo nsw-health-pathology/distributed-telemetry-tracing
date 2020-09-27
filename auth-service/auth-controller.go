@@ -28,12 +28,20 @@ func (a AuthController) login(username string, password string) IHttpResponse {
 
 	user := *pUser
 	if user.Password != password {
-		fmt.Println("Password Mismatch")
+		return IHttpResponse{
+			body:       IError{Message: "Invalid login attempt"},
+			statusCode: 401,
+		}
 	}
 
+	token := a.userSvc.makeTokenForUser(pUser)
+	fmt.Println("Token String", token)
 	return IHttpResponse{
 		body:       user,
 		statusCode: 200,
+		headers: map[string]string{
+			"Authorization": token,
+		},
 	}
 
 }
