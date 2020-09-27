@@ -16,12 +16,17 @@ type AuthController struct {
 
 func (a AuthController) login(username string, password string) IHttpResponse {
 
-	user, err := a.userSvc.getUser(username)
+	pUser, pErr := a.userSvc.getUser(username)
 
-	if err != nil {
-		fmt.Println(err)
+	if pErr != nil {
+		fmt.Println(*pErr)
+		return IHttpResponse{
+			body:       *pErr,
+			statusCode: 500,
+		}
 	}
 
+	user := *pUser
 	if user.Password != password {
 		fmt.Println("Password Mismatch")
 	}

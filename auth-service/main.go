@@ -1,16 +1,31 @@
 package main
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
+
+func getEnv(key string, defaultValue string) string {
+	value, exists := os.LookupEnv(key)
+	if exists {
+		return value
+	}
+	return defaultValue
+}
 
 func main() {
 
 	config := AppConfiguration{
-		userServiceBaseURL: os.Getenv("USER_SERVICE_BASE_URL"),
-		jwtSigningKey:      os.Getenv("JWT_SIGNING_KEY"),
-		port:               os.Getenv("PORT"),
+		userServiceBaseURL: getEnv("USER_SERVICE_BASE_URL", "http://localhost:8000"),
+		jwtSigningKey:      getEnv("JWT_SIGNING_KEY", "MockSigningKey"),
+		port:               getEnv("PORT", "8010"),
 	}
 
-	svc := UserService{}
+	fmt.Println(config)
+
+	svc := UserService{
+		userServiceBaseURL: config.userServiceBaseURL,
+	}
 	authController := AuthController{userSvc: svc}
 
 	app := App{}

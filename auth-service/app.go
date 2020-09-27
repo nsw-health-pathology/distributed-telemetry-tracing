@@ -43,7 +43,7 @@ func (a *App) initialiseRoutes() {
 // Starts the web api
 func (a *App) run() {
 	fmt.Println("Starting web server...")
-	log.Fatal(http.ListenAndServe(":8010", a.Router))
+	log.Fatal(http.ListenAndServe(":"+a.config.port, a.Router))
 }
 
 // Handler for /login request
@@ -57,7 +57,7 @@ func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&u)
 
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, IError{message: "Invalid request payload"})
+		respondWithError(w, http.StatusBadRequest, IError{Message: "Invalid request payload"})
 		return
 	}
 
