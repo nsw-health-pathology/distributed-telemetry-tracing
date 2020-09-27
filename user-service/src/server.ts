@@ -1,4 +1,6 @@
 import express from 'express';
+import * as AppInsights from 'applicationinsights'
+
 import { IUserController, UserController } from './controllers/user.controller';
 import { InMemoryDatabase } from './repository/in-memory/in-memory-database';
 import { IUserRepository } from './repository/user.repository';
@@ -7,6 +9,12 @@ import { IUserService, UserService } from './services/user.service';
 const repo: IUserRepository = new InMemoryDatabase();
 const svc: IUserService = new UserService(repo);
 const userController: IUserController = new UserController(svc);
+
+// Environment Config
+const port = process.env.PORT || 8000
+
+// const appInsightsKey = process.env.APPINSIGHTS_INSTRUMENTATIONKEY || ""
+AppInsights.setup();
 
 // Seed database
 repo.addUser({ username: 'admin@admin.com', password: 'P@55w0rd', firstName: 'Admin', lastName: 'Admin' })
@@ -26,7 +34,6 @@ app.get('/user', (req, res) => {
     res.send(response.body)
 })
 
-const port = process.env.PORT || 8000
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)
