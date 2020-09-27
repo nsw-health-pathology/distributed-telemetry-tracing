@@ -21,6 +21,7 @@ type IUserService interface {
 type UserService struct {
 	userServiceBaseURL string
 	jwtSigningKey      string
+	appInsightsService AppInsightsService
 }
 
 // Because the function signature matches the interface defined for IUserService,
@@ -33,6 +34,7 @@ func (u UserService) getUser(userName string) (*User, *IError) {
 	}
 
 	pResponse, err := userServiceGetUser(url, queryParams)
+	u.appInsightsService.Client.TrackRemoteDependency(url, "HTTP", url, (*pResponse).statusCode == 200)
 
 	if err != nil {
 		e := IError{Message: err.Error()}

@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 func getEnv(key string, defaultValue string) string {
@@ -14,6 +16,9 @@ func getEnv(key string, defaultValue string) string {
 }
 
 func main() {
+
+	client := appinsights.NewTelemetryClient(getEnv("APPINSIGHTS_INSTRUMENTATIONKEY", ""))
+	appInsightsService := AppInsightsService{Client: client}
 
 	config := AppConfiguration{
 		userServiceBaseURL: getEnv("USER_SERVICE_BASE_URL", "http://localhost:8000"),
@@ -28,7 +33,7 @@ func main() {
 	}
 	authController := AuthController{userSvc: svc}
 
-	app := App{}
+	app := App{appInsights: appInsightsService}
 	app.initialise(config, authController)
 	app.run()
 }

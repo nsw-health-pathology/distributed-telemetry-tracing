@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -25,6 +26,7 @@ type App struct {
 	config         AppConfiguration
 	authController IAuthController
 	Router         *mux.Router
+	appInsights    AppInsightsService
 }
 
 // Initialise the app with the incoming configuration properties
@@ -49,6 +51,7 @@ func (a *App) run() {
 // Handler for /login request
 func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 
+	requestStart := time.Now()
 	fmt.Println("Handling /login")
 
 	// Read request
@@ -67,4 +70,8 @@ func (a *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	response := a.authController.login(u.UserName, u.Password)
 	respondWithJSON(w, response)
+
+	requestEnd := time.Now()
+	duration := requestEnd.Sub(requestStart)
+	a.appInsights.Client.TrackRequest("POST", "/login", duration, fmt.Sprintf("%d", response.statusCode))
 }
