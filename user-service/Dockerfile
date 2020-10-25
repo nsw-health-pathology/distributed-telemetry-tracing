@@ -25,8 +25,9 @@ RUN npm run build && npm prune --production
 FROM node:10.16.3-slim
 
 ENV PORT=8000
+ENV APPINSIGHTS_INSTRUMENTATIONKEY=Empty
 WORKDIR /app
 COPY --from=builder /build .
 
 # Run the app
-CMD ["npm," "run," "start"]
+CMD ["npm", "run", "start"]

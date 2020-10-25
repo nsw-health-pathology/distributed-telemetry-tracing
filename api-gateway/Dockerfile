@@ -33,4 +33,4 @@ WORKDIR /app
 COPY --from=builder /build .
 
 # Run the app
-CMD ["npm," "run," "start"]
+CMD ["npm", "run", "start"]

@@ -34,7 +34,7 @@ func (u UserService) getUser(userName string) (*User, *IError) {
 	}
 
 	pResponse, err := userServiceGetUser(url, queryParams)
-	u.appInsightsService.Client.TrackRemoteDependency(url, "HTTP", url, (*pResponse).statusCode == 200)
+	// u.appInsightsService.Client.TrackRemoteDependency(url, "HTTP", url, (*pResponse).statusCode == 200)
 
 	if err != nil {
 		e := IError{Message: err.Error()}
@@ -65,9 +65,10 @@ func (u UserService) makeTokenForUser(user *User) string {
 	}
 
 	fmt.Println(claimMap)
+	hmacSecret := []byte(u.jwtSigningKey)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claimMap)
-	tokenString, err := token.SignedString([]byte(u.jwtSigningKey))
+	tokenString, err := token.SignedString(hmacSecret)
 
 	if err != nil {
 		fmt.Println("Error making token", err)

@@ -30,6 +30,7 @@ func main() {
 
 	svc := UserService{
 		userServiceBaseURL: config.userServiceBaseURL,
+		jwtSigningKey:      config.jwtSigningKey,
 	}
 	authController := AuthController{userSvc: svc}
 
